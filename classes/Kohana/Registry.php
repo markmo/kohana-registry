@@ -187,7 +187,21 @@ abstract class Kohana_Registry
                 }
 
                 $class = new ReflectionClass($item_config['class']);
-                $instance = $class->newInstanceArgs($constructor_attributes);
+		if (empty($constructor_attributes))
+		{
+			$instance = $class->newInstance();
+		} else
+		{
+			foreach ($constructor_attributes as $i => $attr)
+			{
+				if (substr($attr, 0, 1) == '$')
+				{
+					$obj = $this->get_object(substr($attr, 1));
+					$constructor_attributes[$i] = $obj;
+				}
+			}
+                	$instance = $class->newInstanceArgs($constructor_attributes);
+		}
 
                 // load setter_attributes
                 $reflection_class = new ReflectionClass($instance);
